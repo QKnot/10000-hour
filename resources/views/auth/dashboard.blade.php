@@ -36,10 +36,10 @@ Dashboard
                     <form class="d-flex" action="{{route('habits.store')}}" method="post">
                         @csrf
                         <div class="col-4 mx-1">
-                            <input name="name" class="form-control" type="text" placeholder="Tambahkan Judul Lists">
+                            <input name="name" class="form-control" type="text" placeholder="Add List Title">
                         </div>
                         <div class="col-2 mx-2">
-                            <input name="daily_count" class="form-control" type="number" placeholder="Gols harian" min="1" max="10000">
+                            <input name="daily_count" class="form-control" type="number" placeholder="Target Hour" min="1" max="10000">
                         </div>
                         <button type="submit" class="btn btn-dark align-items-end"><i class="bi bi-check-circle"></i></button>
                     </form>
@@ -47,7 +47,7 @@ Dashboard
                 <table class="table table-hover table-striped">
                     <thead>
                         <tr>
-                            <th scope="col">NO</th>
+                            <th scope="col">NO.</th>
                             <th scope="col">Name</th>
                             <th scope="col">Progress Hour</th>
                             <th scope="col">Target Hour</th>
@@ -114,7 +114,7 @@ Dashboard
                                 divHidden.style.animation = 'fadeOut 0.5s forwards';
                                 setTimeout(function() {
                                     divHidden.style.display = 'none';
-                                }, 500); // Waktu yang sama dengan durasi animasi (0.5s)
+                                }, 500); 
                             }
                         });
 

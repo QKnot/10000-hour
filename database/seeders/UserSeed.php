@@ -17,15 +17,15 @@ class UserSeed extends Seeder
     {
         $datas = [[
             'id' => Str::random(13),
-            'username' => "fauzaro01",
-            'email' => "muhamadfauzan4750@gmail.com",
-            'password' => Hash::make('admin123'),
+            'username' => "qknot",
+            'email' => "qknot0.3@gmail.com",
+            'password' => Hash::make('73939133'),
             'role' => "admin"
         ],[
             'id' => Str::random(13),
-            'username' => "zarory",
-            'email' => "zarory01@gmail.com",
-            'password' => Hash::make('member123'),
+            'username' => "rahul",
+            'email' => "rahul@gmail.com",
+            'password' => Hash::make('rahul73939133'),
             'role' => "member"
         ]];
         User::insert($datas);

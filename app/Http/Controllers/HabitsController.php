@@ -36,18 +36,18 @@ class HabitsController extends Controller
         ]);
 
         if (habits::isDuplicate($request->name, auth()->user()->id)) {
-            return redirect()->back()->withErrors(["name" => "Nama Habits sudah ada."])->withInput();
+            return redirect()->back()->withErrors(["name" => "Habit name already exists."])->withInput();
         }
 
         habits::create([
             'id' => Str::random(12),
             'name' => $request->name,
-            'description' => $request->description ?? "Deskripsi belum selesai diatur",
+            'description' => $request->description ?? "Description has not been set yet",
             'daily_count' => $request->daily_count,
             'user_id' => auth()->user()->id
         ]);
 
-        return redirect()->back()->withSuccess('Berhasil menambahkan Habits baru!');
+        return redirect()->back()->withSuccess('Successfully added a new habit!');
     }
 
     public function update(Request $request, $id)
@@ -61,13 +61,13 @@ class HabitsController extends Controller
 
         if ($habit) {
             $habit->update([
-                'name' => $request->name,
-                'description' => $request->description,
+            'name' => $request->name,
+            'description' => $request->description,
             ]);
 
-            return redirect()->route('dashboard')->withSuccess("Habits anda telah di Perbarui.");
+            return redirect()->route('dashboard')->withSuccess("Your habit has been updated.");
         } else {
-            return redirect()->route('dashboard')->with('warn', "Habits anda tidak valid");
+            return redirect()->route('dashboard')->with('warn', "Your habit is not valid.");
         }
     }
 
@@ -77,9 +77,9 @@ class HabitsController extends Controller
 
         if ($habit) {
             $habit->delete();
-            return redirect()->route('dashboard')->withSuccess("Habits anda berhasil di hapus.");
+            return redirect()->route('dashboard')->withSuccess("Your habit has been successfully deleted.");
         } else {
-            return response()->json(['message' => "Habit not found or unauthrized"], 404);
+            return response()->json(['message' => "Habit not found or unauthorized"], 404);
         }
     }
 
@@ -94,11 +94,11 @@ class HabitsController extends Controller
 
         if ($habit) {
             if ($habit->logs()->whereDate('date', '=', now()->toDateString())->count() >= $habit->daily_count) {
-                return redirect()->route('habits.index', $habit->id)->with('warn', "Anda tidak bisa merekam kegiatan melebihi jadwal yang di berikan sebelumnya.");
+                return redirect()->route('habits.index', $habit->id)->with('warn', "You cannot record more activities than the previously set schedule.");
             } else {
                 $habit->logs()->create([
                     "id" => Str::random(12),
-                    "date" => $request->date ?? now('Asia/Jakarta'),
+                    "date" => $request->date ?? now('Asia/Dhaka'),
                     "user_id" => auth()->user()->id,
                     "habit_id" => $habit->id
                 ]);

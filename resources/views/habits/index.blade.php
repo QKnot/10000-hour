@@ -19,14 +19,15 @@ Analisis Habits
         @endif
 
         <div class="row">
-
+<!-- 
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-success shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Total Goals Achieved</div>
+                                    
+                                </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{$record['berhasil']}}</div>
                             </div>
                             <div class="col-auto">
@@ -35,7 +36,7 @@ Analisis Habits
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Earnings (Monthly) Card Example -->
             <div class="col-xl-3 col-md-6 mb-4">
@@ -44,7 +45,7 @@ Analisis Habits
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Target (Daily)</div>
+                                    Target </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{$habit->daily_count}}</div>
                             </div>
                             <div class="col-auto">
@@ -66,11 +67,11 @@ Analisis Habits
                                 </div>
                                 <div class="row no-gutters align-items-center">
                                     <div class="col-auto">
-                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{($habit->logs()->whereDate('date', now('Asia/Jakarta'))->count() / $habit->daily_count)*100}}%</div>
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{($habit->logs()->whereDate('date', now('Asia/Dhaka'))->count() / $habit->daily_count)*100}}%</div>
                                     </div>
                                     <div class="col">
                                         <div class="progress progress-sm mr-2">
-                                            <div id="progressBar" class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuenow="{{($habit->logs()->whereDate('date', now())->count() / $habit->daily_count)*100}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div id="progressBar" class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuenow="{{($habit->logs()->whereDate('date', now('Asia/Dhaka'))->count() / $habit->daily_count)*100}}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -90,7 +91,7 @@ Analisis Habits
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Total Not Reached</div>
+                                    Total Reached</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{$record['gagal']}}</div>
                             </div>
                             <div class="col-auto">
@@ -133,7 +134,7 @@ Analisis Habits
                                     <form action="{{route('habits.checkin', $habit->id)}}" method="post">
                                         <input type="hidden" name="habit_id" value="{{$habit->id}}">
                                         @csrf
-                                        <button id="interaksi-btn" class="btn btn-secondary" type="submit">[<i class="bi bi-send-plus"></i>] Roll call</button>
+                                        <button id="interaksi-btn" class="btn btn-secondary" type="submit">[<i class="bi bi-send-plus"></i>] Add Hour</button>
                                         <a class="btn btn-secondary" href="{{route('habits.analisis', $habit->id)}}">[<i class="bi bi-bar-chart-line"></i>] Analysis</a>
                                     </form>
                                 </div>
@@ -169,16 +170,14 @@ Analisis Habits
 
     var pressTimer;
 
-    // Mengaktifkan timer ketika tombol ditekan
     document.getElementById("interaksi-btn").addEventListener("mousedown", function(e) {
-        // Membuat timer yang akan memanggil fungsi setelah 7 detik
+
         pressTimer = window.setTimeout(function() {
             console.log("misteri button");
             e.preventDefault();
-        }, 1000); // 7000 milidetik = 7 detik
+        }, 1000); 
     });
 
-    // Menghapus timer ketika tombol dilepas sebelum 7 detik
     document.getElementById("interaksi-btn").addEventListener("mouseup", function() {
         clearTimeout(pressTimer);
     });

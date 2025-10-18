@@ -78,7 +78,7 @@ Analisis Habits
         labels: dataset.result.logs.index,
         datasets: [{
           label: 'Achieved',
-          data: dataset.result.logs.value,
+          data: dataset.result.logs.value.map(v => Number(v)),
           borderWidth: 1
         }]
       },
@@ -105,7 +105,7 @@ Analisis Habits
     var chartPie = new Chart(ctxPie, {
       type: 'pie',
       data: {
-        labels: ["Success", "Failure"],
+        labels: ["Failure", "Success"],
         datasets: [{
           label: 'Amount achieved',
           data: [dataset.result.info.berhasil, dataset.result.info.gagal],

@@ -43,7 +43,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         Auth::attempt($credentials);
         $request->session()->regenerate();
-        return redirect()->route('dashboard')->withSuccess('Akun Berhasil di Register & Sudah di loginkan');
+        return redirect()->route('dashboard')->withSuccess('Account successfully registered & logged in');
     }
 
     public function authenticate(Request $request) {
@@ -54,11 +54,11 @@ class AuthController extends Controller
 
         if(Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'))->withSuccess("Selamat Datang Kembali ".auth()->user()->username);
+            return redirect()->intended(route('dashboard'))->withSuccess("Welcome back, ".auth()->user()->username);
         }
 
         return back()->withErrors([
-            "email" => "Akun anda tidak ada di sistem, tolong check lagi :("
+            "email" => "Your account does not exist in the system, please check again :("
         ])->onlyInput('email');
     }
 
@@ -70,7 +70,7 @@ class AuthController extends Controller
 
         return redirect()->route('login')
             ->withErrors([
-            'email' => 'Silakan Login Terlebih dahulu untuk mengakses Halaman tersebut.',
+            'email' => 'Please log in first to access this page.',
         ])->onlyInput('email');
     }
 
