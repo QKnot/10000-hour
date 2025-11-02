@@ -113,4 +113,35 @@ class HabitsController extends Controller
         $habit = habits::findHabitsByUser($id, auth()->user()->id);
         return view('habits.analisis', compact('habit'));
     }
+
+    public function logTime(Request $request)
+    {
+        $request->validate([
+            'habit_id' => 'required|size:12',
+            'duration' => 'required|integer|min:1'
+        ]);
+
+        $habit = habits::findOrFail($request->habit_id);
+
+        if ($habit && $habit->user_id === auth()->user()->id) {
+            $habit->logs()->create([
+                "id" => Str::random(12),
+                "date" => now('Asia/Dhaka'),
+                "duration" => $request->duration,
+                "user_id" => auth()->user()->id,
+                "habit_id" => $habit->id
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Time logged successfully!',
+                'duration' => $request->duration
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized or habit not found'
+            ], 403);
+        }
+    }
 }

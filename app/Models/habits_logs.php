@@ -14,7 +14,7 @@ class habits_logs extends Model
     protected $keyType = "string";
 
     protected $fillable = [
-        "id", "date", "user_id", "habit_id"
+        "id", "date", "duration", "user_id", "habit_id"
     ];
 
     protected $hidden = [

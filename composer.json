@@ -3,7 +3,7 @@
     "type": "project",
     "description": "10000 Hour - A habit tracking application to master skills through deliberate practice.",
     "keywords": ["laravel", "habits", "tracking", "10000-hour-rule", "practice"],
-    "license": "MIT",
+    "license": "",
     "require": {
         "php": "^8.1",
         "guzzlehttp/guzzle": "^7.2",

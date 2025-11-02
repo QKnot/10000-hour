@@ -71,4 +71,50 @@ class habits extends Model
 
         return ["berhasil" => $berhasil, "gagal" => $gagal];
     }
+
+    // Get total duration in seconds for today
+    public static function getTodayDuration($id) {
+        $habit = self::find($id);
+        if (!$habit) return 0;
+        
+        return $habit->logs()
+            ->whereDate('date', now('Asia/Dhaka'))
+            ->sum('duration');
+    }
+
+    // Get total duration in seconds for all time
+    public static function getTotalDuration($id) {
+        $habit = self::find($id);
+        if (!$habit) return 0;
+        
+        return $habit->logs()->sum('duration');
+    }
+
+    // Convert daily_count from hours to seconds for comparison
+    public function getDailyTargetSeconds() {
+        return $this->daily_count * 3600; // Convert hours to seconds
+    }
+
+    // Get today's progress percentage
+    public function getTodayProgress() {
+        $todaySeconds = self::getTodayDuration($this->id);
+        $targetSeconds = $this->getDailyTargetSeconds();
+        
+        if ($targetSeconds == 0) return 0;
+        return min(100, round(($todaySeconds / $targetSeconds) * 100, 2));
+    }
+
+    // Format seconds to hours:minutes:seconds
+    public static function formatDuration($seconds) {
+        $hours = floor($seconds / 3600);
+        $minutes = floor(($seconds % 3600) / 60);
+        $secs = $seconds % 60;
+        return sprintf("%02d:%02d:%02d", $hours, $minutes, $secs);
+    }
+
+    // Get total hours (for 10,000 hour goal)
+    public static function getTotalHours($id) {
+        $totalSeconds = self::getTotalDuration($id);
+        return round($totalSeconds / 3600, 2);
+    }
 }

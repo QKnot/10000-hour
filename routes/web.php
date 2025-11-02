@@ -19,9 +19,14 @@ Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
-    return redirect()->route('login');
+    return View::make('welcome');
 })->name('home');
 
+Route::get('/dashboard', [HabitsController::class, 'index'])->name('habits.dashboard');
+
+Route::get('/motivation', function () {
+    return "Andrej Karpathy believes that mastering any skill requires consistent practice over time — the idea behind the 10,000 Hour app is to help users track and focus on deliberate practice to achieve expertise.";
+});
 Route::controller(AuthController::class)->group(function () {
     Route::get('register', 'register')->name('register');
     Route::post('store', 'store')->name('store');
@@ -35,6 +40,7 @@ Route::prefix('/habits')->middleware('auth')->controller(HabitsController::class
     Route::get('/{id}', 'index')->name('habits.index');
     Route::get('/{id}/analisis', 'analisis')->name('habits.analisis');
     Route::post('/checkin', 'checkin')->name('habits.checkin');
+    Route::post('/log-time', 'logTime')->name('habits.logtime');
     Route::post('/store', 'store')->name('habits.store');
     Route::get('/update/{id}', 'updatepage')->name('habits.updatepage');
     Route::put('/{id}', 'update')->name('habits.update');
