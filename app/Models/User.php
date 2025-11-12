@@ -48,4 +48,20 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class, 'user_badges', 'user_id', 'badge_id')
+            ->withPivot('earned_at')
+            ->withTimestamps();
+    }
+
+    public function userBadges()
+    {
+        return $this->hasMany(UserBadge::class, 'user_id');
+    }
+
+    public function hasBadge($badgeId)
+    {
+        return $this->badges()->where('badge_id', $badgeId)->exists();
+    }
 }

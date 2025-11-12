@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\habits;
+use App\Services\BadgeService;
 use Carbon\Carbon;
 
 class HabitsController extends Controller
@@ -102,6 +103,16 @@ class HabitsController extends Controller
                     "user_id" => auth()->user()->id,
                     "habit_id" => $habit->id
                 ]);
+                
+                // Check and award badges
+                $awardedBadges = BadgeService::checkAndAwardBadges(auth()->user()->id, $habit->id);
+                
+                if (!empty($awardedBadges)) {
+                    $badgeNames = collect($awardedBadges)->pluck('name')->implode(', ');
+                    return redirect()->route('habits.index', $habit->id)
+                        ->with('success', 'Activity recorded! 🏆 New badge(s) earned: ' . $badgeNames);
+                }
+                
                 return redirect()->route('habits.index', $habit->id);
             }
         } else {
@@ -118,7 +129,8 @@ class HabitsController extends Controller
     {
         $request->validate([
             'habit_id' => 'required|size:12',
-            'duration' => 'required|integer|min:1'
+            'duration' => 'required|integer|min:1',
+            'date' => 'nullable|date'
         ]);
 
         $habit = habits::findOrFail($request->habit_id);
@@ -126,16 +138,45 @@ class HabitsController extends Controller
         if ($habit && $habit->user_id === auth()->user()->id) {
             $habit->logs()->create([
                 "id" => Str::random(12),
-                "date" => now('Asia/Dhaka'),
+                "date" => $request->date ?? now('Asia/Dhaka')->toDateString(),
                 "duration" => $request->duration,
                 "user_id" => auth()->user()->id,
                 "habit_id" => $habit->id
             ]);
             
+            // Refresh and compute totals
+            $habit->refresh();
+            $totalHours = habits::getTotalHours($habit->id);
+            $goalHours = $habit->getGoalHours();
+            $goalReachedBefore = $habit->goal_reached_at !== null;
+            
+            // Check and award badges
+            $awardedBadges = BadgeService::checkAndAwardBadges(auth()->user()->id, $habit->id);
+            
+            // Update goal status if threshold met
+            $habit->markGoalReachedIfNeeded();
+            $goalReached = $habit->goal_reached_at !== null;
+            
+            $badgeMessage = '';
+            if (!empty($awardedBadges)) {
+                $badgeNames = collect($awardedBadges)->pluck('name')->implode(', ');
+                $badgeMessage = ' 🏆 New badge(s) earned: ' . $badgeNames;
+            }
+            
+            if ($goalReached && !$goalReachedBefore) {
+                $badgeMessage .= ' 🎉 You have completed the 10,000-hour mastery journey!';
+            }
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Time logged successfully!',
-                'duration' => $request->duration
+                'message' => 'Time logged successfully!' . $badgeMessage,
+                'duration' => $request->duration,
+                'badges' => $awardedBadges,
+                'total_hours' => $totalHours,
+                'goal_hours' => $goalHours,
+                'goal_progress' => $habit->goalProgressPercentage(),
+                'goal_reached' => $goalReached,
+                'goal_reached_at' => optional($habit->goal_reached_at)->toDateTimeString(),
             ]);
         } else {
             return response()->json([

@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\HabitsController;
+use App\Http\Controllers\BadgeController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,3 +48,57 @@ Route::prefix('/habits')->middleware('auth')->controller(HabitsController::class
     Route::put('/{id}', 'update')->name('habits.update');
     Route::delete('/{id}', 'destroy')->name('habits.destroy');
 });
+
+Route::prefix('/badges')->middleware('auth')->controller(BadgeController::class)->group(function () {
+    Route::get('/', 'index')->name('badges.index');
+});
+
+// API route for analysis data
+Route::middleware('auth')->get('/api/getdata/{id}', function (Request $req, $id) {
+    $habit = \App\Models\habits::find($id);
+    
+    if (!$habit || $habit->user_id !== auth()->id()) {
+        return response()->json(['code' => 403, 'msg' => "Unauthorized"], 403);
+    }
+    
+    // Get duration by date (in hours)
+    $durationByDate = \App\Models\habits::getDurationByDate($id);
+    $dates = array_keys($durationByDate);
+    $hours = array_values($durationByDate);
+    
+    // Get success/failure stats
+    $habitinfo = \App\Models\habits::getSuccessFailureStats($id);
+    
+    // Get additional statistics
+    $totalHours = \App\Models\habits::getTotalHours($id);
+    $averageHours = \App\Models\habits::getAverageHoursPerDay($id);
+    $currentStreak = \App\Models\habits::getCurrentStreak($id);
+    $bestDay = \App\Models\habits::getBestDay($id);
+    $weeklyStats = \App\Models\habits::getWeeklyStats($id);
+    $monthlyStats = \App\Models\habits::getMonthlyStats($id);
+    $goalHours = $habit->getGoalHours();
+    $goalProgress = $habit->goalProgressPercentage();
+    $goalReachedAt = optional($habit->goal_reached_at)->toDateTimeString();
+    
+    $result = [
+        "logs" => [
+            "index" => $dates,
+            "value" => $hours
+        ],
+        "info" => $habitinfo,
+        "statistics" => [
+            "total_hours" => $totalHours,
+            "average_hours_per_day" => $averageHours,
+            "current_streak" => $currentStreak,
+            "best_day" => $bestDay,
+            "weekly_stats" => $weeklyStats,
+            "monthly_stats" => $monthlyStats,
+            "goal_hours" => $goalHours,
+            "goal_progress" => $goalProgress,
+            "goal_reached" => $habit->hasReachedGoal(),
+            "goal_reached_at" => $goalReachedAt,
+        ]
+    ];
+    
+    return response()->json(['code' => 200, 'msg' => "Success", "result" => $result]);
+})->name('api.getdata');
