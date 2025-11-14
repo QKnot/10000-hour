@@ -64,4 +64,42 @@ class User extends Authenticatable
     {
         return $this->badges()->where('badge_id', $badgeId)->exists();
     }
+
+    public function habits()
+    {
+        return $this->hasMany(habits::class, 'user_id');
+    }
+
+    public function blogPosts()
+    {
+        return $this->hasMany(Blog::class, 'author_id');
+    }
+
+    /**
+     * Get total hours across all habits for this user
+     */
+    public function getTotalHours(): float
+    {
+        // Optimize: directly sum from habits_logs table
+        $totalSeconds = \App\Models\habits_logs::where('user_id', $this->id)
+            ->sum('duration') ?? 0;
+        
+        return round($totalSeconds / 3600, 2);
+    }
+
+    /**
+     * Get total number of habits for this user
+     */
+    public function getTotalHabits(): int
+    {
+        return $this->habits()->count();
+    }
+
+    /**
+     * Check if user is an admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 }

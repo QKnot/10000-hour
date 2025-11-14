@@ -43,7 +43,7 @@
                 <input name="name" class="form-control form-control-lg" type="text" placeholder="Enter Habit Name" required>
             </div>
             <div class="col-md-4">
-                <input name="daily_count" class="form-control form-control-lg" type="number" placeholder="Target Hours" min="1" max="10000" required>
+                <input name="daily_count" class="form-control form-control-lg" type="number" placeholder="Daily Target Hours" min="1" max="24" required>
             </div>
             <div class="col-md-2 d-grid">
                 <button type="submit" class="btn btn-primary btn-lg shadow-sm">
@@ -62,8 +62,8 @@
                         <tr>
                             <th>#</th>
                             <th>Habit</th>
-                            <th>Progress</th>
-                            <th>Target</th>
+                            <th>Daily Progress</th>
+                            <th>Daily Target</th>
                             <th>Status</th>
                             <th class="text-center">Actions</th>
                         </tr>

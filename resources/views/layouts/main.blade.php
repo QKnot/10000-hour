@@ -233,6 +233,148 @@
             25% { transform: scale(1.1); }
             50% { transform: scale(1); }
         }
+
+        /* Alert System Styles */
+        .alert-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+            width: auto;
+            min-width: 300px;
+            pointer-events: none;
+        }
+        
+        .alert-container > * {
+            pointer-events: auto;
+        }
+
+        .custom-alert {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid;
+            animation: slideInRight 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .custom-alert.alert-success {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #ffffff 100%);
+        }
+
+        .custom-alert.alert-danger,
+        .custom-alert.alert-error {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da 0%, #ffffff 100%);
+        }
+
+        .custom-alert.alert-warning {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffffff 100%);
+        }
+
+        .custom-alert.alert-info {
+            border-left-color: #17a2b8;
+            background: linear-gradient(135deg, #d1ecf1 0%, #ffffff 100%);
+        }
+
+        .alert-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        .alert-success .alert-icon {
+            color: #28a745;
+        }
+
+        .alert-danger .alert-icon,
+        .alert-error .alert-icon {
+            color: #dc3545;
+        }
+
+        .alert-warning .alert-icon {
+            color: #ffc107;
+        }
+
+        .alert-info .alert-icon {
+            color: #17a2b8;
+        }
+
+        .alert-message {
+            flex: 1;
+            color: #333;
+            font-weight: 500;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .alert-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+
+        .custom-alert.slide-out {
+            animation: slideOutRight 0.3s ease-out forwards;
+        }
+
+        @media (max-width: 768px) {
+            .alert-container {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -272,12 +414,30 @@
                             <a class="nav-link {{ (request()->is('badges*')) ? 'active' : '' }}" href="{{ route('badges.index') }}">
                                 <i class="bi bi-trophy"></i> Badges
                             </a>
-                        </li>    
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ (request()->is('leaderboard*')) ? 'active' : '' }}" href="{{ route('leaderboard.index') }}">
+                                <i class="bi bi-trophy-fill"></i> Leaderboard
+                            </a>
+                        </li>
+                        @if(Auth::check() && Auth::user()->isAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link {{ (request()->is('admin*')) ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                                <i class="bi bi-shield-check"></i> Admin
+                            </a>
+                        </li>
+                        @endif
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ Auth::user()->username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('profile.show') }}">
+                                        <i class="bi bi-person-circle"></i> My Profile
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                         onclick="event.preventDefault();
@@ -295,6 +455,9 @@
             </div>
         </div>
     </nav> 
+
+    <!-- Alert Container -->
+    <div class="alert-container" id="alert-container"></div>
 
     <div class="container">
         <div class="content-wrapper">
@@ -321,5 +484,149 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    
+    <!-- Alert System JavaScript -->
+    <script>
+        // Alert System
+        class AlertSystem {
+            constructor() {
+                this.container = document.getElementById('alert-container');
+                if (!this.container) {
+                    console.error('Alert container not found!');
+                    return;
+                }
+                this.init();
+            }
+
+            init() {
+                // Make showAlert available globally first
+                const self = this;
+                window.showAlert = function(message, type = 'info', duration = 5000) {
+                    if (self.container) {
+                        self.show(message, type, duration);
+                    } else {
+                        console.error('Alert system not initialized');
+                    }
+                };
+                
+                // Show session flash messages after a small delay to ensure DOM is ready
+                setTimeout(() => {
+                    this.showSessionAlerts();
+                }, 200);
+            }
+
+            showSessionAlerts() {
+                // Check for Laravel session flash messages
+                @if(session('success'))
+                    this.show(@json(session('success')), 'success');
+                @endif
+
+                @if(session('error'))
+                    this.show(@json(session('error')), 'error');
+                @endif
+
+                @if(session('warning'))
+                    this.show(@json(session('warning')), 'warning');
+                @endif
+
+                @if(session('info'))
+                    this.show(@json(session('info')), 'info');
+                @endif
+
+                // Check for validation errors
+                @if($errors->any())
+                    @foreach($errors->all() as $error)
+                        this.show(@json($error), 'error');
+                    @endforeach
+                @endif
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                if (!this.container) {
+                    console.error('Alert container not found!');
+                    return;
+                }
+                
+                if (!message || message.trim() === '') {
+                    return;
+                }
+                
+                const alertId = 'alert-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                const alert = this.createAlert(message, type, alertId, duration);
+                
+                this.container.appendChild(alert);
+                
+                // Auto-close if duration is set
+                if (duration > 0) {
+                    setTimeout(() => {
+                        this.close(alertId);
+                    }, duration);
+                }
+            }
+
+            createAlert(message, type, id, duration) {
+                const alert = document.createElement('div');
+                alert.className = `custom-alert alert-${type}`;
+                alert.id = id;
+                alert.setAttribute('data-auto-close', duration > 0 ? 'true' : 'false');
+                alert.setAttribute('data-duration', duration);
+
+                const icons = {
+                    success: 'bi-check-circle-fill',
+                    error: 'bi-x-circle-fill',
+                    danger: 'bi-x-circle-fill',
+                    warning: 'bi-exclamation-triangle-fill',
+                    info: 'bi-info-circle-fill'
+                };
+
+                const icon = icons[type] || icons.info;
+
+                alert.innerHTML = `
+                    <div class="alert-content">
+                        <i class="bi ${icon} alert-icon"></i>
+                        <div class="alert-message">${this.escapeHtml(message)}</div>
+                        <button type="button" class="alert-close" onclick="window.alertSystem.close('${id}')" aria-label="Close">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                `;
+
+                return alert;
+            }
+
+            close(alertId) {
+                const alert = document.getElementById(alertId);
+                if (alert) {
+                    alert.classList.add('slide-out');
+                    setTimeout(() => {
+                        if (alert.parentNode) {
+                            alert.parentNode.removeChild(alert);
+                        }
+                    }, 300);
+                }
+            }
+
+            escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
+            }
+        }
+
+        // Initialize alert system when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                window.alertSystem = new AlertSystem();
+            });
+        } else {
+            // DOM already loaded
+            window.alertSystem = new AlertSystem();
+        }
+    </script>
 </body>
 </html>

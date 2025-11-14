@@ -6,6 +6,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\HabitsController;
 use App\Http\Controllers\BadgeController;
+use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ProfileController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,12 +23,23 @@ use App\Http\Controllers\BadgeController;
 |
 */
 
-Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('dashboard');
-    }
-    return View::make('welcome');
-})->name('home');
+// Home page - Blog listing
+Route::get('/', [BlogController::class, 'index'])->name('home');
+
+// Public blog routes
+Route::get('/blog/create', [BlogController::class, 'create'])->name('blog.create')->middleware('auth');
+Route::post('/blog/store', [BlogController::class, 'store'])->name('blog.store')->middleware('auth');
+Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog/{id}/edit', [BlogController::class, 'edit'])->name('blog.edit')->middleware('auth');
+Route::put('/blog/{id}', [BlogController::class, 'update'])->name('blog.update')->middleware('auth');
+Route::delete('/blog/{id}', [BlogController::class, 'destroy'])->name('blog.destroy')->middleware('auth');
+
+// Like/Dislike routes
+Route::post('/blog/{id}/like', [LikeController::class, 'toggle'])->name('blog.like')->middleware('auth');
+
+// Comment routes
+Route::post('/blog/{id}/comment', [CommentController::class, 'store'])->name('blog.comment.store')->middleware('auth');
+Route::delete('/comment/{id}', [CommentController::class, 'destroy'])->name('comment.destroy')->middleware('auth');
 
 Route::get('/dashboard', [HabitsController::class, 'index'])->name('habits.dashboard');
 
@@ -51,6 +68,28 @@ Route::prefix('/habits')->middleware('auth')->controller(HabitsController::class
 
 Route::prefix('/badges')->middleware('auth')->controller(BadgeController::class)->group(function () {
     Route::get('/', 'index')->name('badges.index');
+});
+
+Route::prefix('/leaderboard')->middleware('auth')->controller(LeaderboardController::class)->group(function () {
+    Route::get('/', 'index')->name('leaderboard.index');
+});
+
+Route::prefix('/profile')->middleware('auth')->controller(ProfileController::class)->group(function () {
+    Route::get('/', 'show')->name('profile.show');
+});
+
+Route::prefix('/admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    
+    // Blog management routes
+    Route::prefix('/blogs')->controller(BlogController::class)->group(function () {
+        Route::get('/', 'adminIndex')->name('admin.blogs.index');
+        Route::get('/create', 'create')->name('admin.blogs.create');
+        Route::post('/store', 'store')->name('admin.blogs.store');
+        Route::get('/{id}/edit', 'edit')->name('admin.blogs.edit');
+        Route::put('/{id}', 'update')->name('admin.blogs.update');
+        Route::delete('/{id}', 'destroy')->name('admin.blogs.destroy');
+    });
 });
 
 // API route for analysis data
