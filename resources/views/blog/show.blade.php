@@ -24,12 +24,35 @@
         margin-bottom: 2rem;
         padding-bottom: 1rem;
         border-bottom: 2px solid #f0f0f0;
+        flex-wrap: wrap;
     }
 
     .blog-post-meta-item {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+    }
+
+    .approval-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .approval-pending {
+        background: #ffc107;
+        color: #212529;
+    }
+
+    .approval-approved {
+        background: #28a745;
+        color: white;
+    }
+
+    .approval-rejected {
+        background: #dc3545;
+        color: white;
     }
 
     .blog-post-featured-image {
@@ -329,7 +352,34 @@
             <i class="bi bi-eye"></i>
             <span>{{ $blog->views }} views</span>
         </div>
+        
+        {{-- Show approval status for authors and admins --}}
+        @auth
+            @if(auth()->user()->id === $blog->author_id || auth()->user()->isAdmin())
+                <div class="blog-post-meta-item">
+                    <i class="bi bi-shield-check"></i>
+                    @if($blog->approval_status === 'approved')
+                        <span class="approval-badge approval-approved">Approved</span>
+                    @elseif($blog->approval_status === 'rejected')
+                        <span class="approval-badge approval-rejected">Rejected</span>
+                    @else
+                        <span class="approval-badge approval-pending">Pending Approval</span>
+                    @endif
+                </div>
+            @endif
+        @endauth
     </div>
+    
+    {{-- Show rejection reason if rejected --}}
+    @if($blog->approval_status === 'rejected' && $blog->rejection_reason)
+        @auth
+            @if(auth()->user()->id === $blog->author_id || auth()->user()->isAdmin())
+                <div class="alert alert-warning mt-3">
+                    <strong>Rejection Reason:</strong> {{ $blog->rejection_reason }}
+                </div>
+            @endif
+        @endauth
+    @endif
 </div>
 
 @if($blog->featured_image)

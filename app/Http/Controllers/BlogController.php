@@ -25,14 +25,24 @@ class BlogController extends Controller
     public function show($id)
     {
         $blog = Blog::where('id', $id)
-            ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now())
-            ->with(['author', 'likes', 'dislikes', 'comments.user', 'comments.replies.user'])
+            ->where(function($query) {
+                $query->where('status', 'published')
+                    ->where('approval_status', 'approved')
+                    ->whereNotNull('published_at')
+                    ->where('published_at', '<=', now());
+            })
+            ->orWhere(function($query) {
+                if (auth()->check()) {
+                    $query->where('author_id', auth()->user()->id);
+                }
+            })
+            ->with(['author', 'approver', 'likes', 'dislikes', 'comments.user', 'comments.replies.user'])
             ->firstOrFail();
         
-        // Increment view count
-        $blog->incrementViews();
+        // Increment view count only for published and approved posts
+        if ($blog->status === 'published' && $blog->approval_status === 'approved') {
+            $blog->incrementViews();
+        }
         
         // Get user's reaction if authenticated
         $userReaction = null;
@@ -89,21 +99,40 @@ class BlogController extends Controller
             'featured_image' => 'nullable|string|max:255',
         ]);
 
+        // Set approval status based on user role
+        $approvalStatus = auth()->user()->isAdmin() ? 'approved' : 'pending';
+        
+        // Only publish if admin or if status is draft
+        $finalStatus = $request->status;
+        if ($request->status === 'published' && !auth()->user()->isAdmin()) {
+            $finalStatus = 'draft'; // Keep as draft until approved
+        }
+        
+        $publishedAt = null;
+        if ($finalStatus === 'published') {
+            $publishedAt = $request->published_at ?? now();
+        }
+
         $blog = Blog::create([
             'id' => Str::random(12),
             'title' => $request->title,
             'content' => $request->content,
             'excerpt' => $request->excerpt,
             'author_id' => auth()->user()->id,
-            'status' => $request->status,
-            'published_at' => $request->status === 'published' 
-                ? ($request->published_at ?? now()) 
-                : null,
+            'status' => $finalStatus,
+            'approval_status' => $approvalStatus,
+            'published_at' => $publishedAt,
+            'approved_at' => auth()->user()->isAdmin() ? now() : null,
+            'approved_by' => auth()->user()->isAdmin() ? auth()->user()->id : null,
             'featured_image' => $request->featured_image,
         ]);
 
+        $message = auth()->user()->isAdmin() 
+            ? 'Blog post created successfully!'
+            : 'Blog post submitted for approval. It will be visible once approved by an admin.';
+            
         return redirect()->route('blog.show', $blog->id)
-            ->with('success', 'Blog post created successfully!');
+            ->with('success', $message);
     }
 
     /**
@@ -197,5 +226,66 @@ class BlogController extends Controller
         
         return redirect()->route('home')
             ->with('success', 'Blog post deleted successfully!');
+    }
+
+    /**
+     * Admin: Approve a blog post
+     */
+    public function approve($id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access.');
+        }
+        
+        $blog = Blog::findOrFail($id);
+        
+        if ($blog->approval_status === 'approved') {
+            return redirect()->route('admin.blogs.index')->with('info', 'Blog post is already approved.');
+        }
+        
+        $blog->update([
+            'approval_status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => auth()->user()->id,
+            'rejection_reason' => null,
+        ]);
+        
+        // If the blog was set to published, make it visible now
+        if ($blog->status === 'published' && !$blog->published_at) {
+            $blog->update(['published_at' => now()]);
+        }
+        
+        return redirect()->route('admin.blogs.index')
+            ->with('success', 'Blog post approved successfully!');
+    }
+
+    /**
+     * Admin: Reject a blog post
+     */
+    public function reject(Request $request, $id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access.');
+        }
+        
+        $blog = Blog::findOrFail($id);
+        
+        if ($blog->approval_status === 'rejected') {
+            return redirect()->route('admin.blogs.index')->with('info', 'Blog post is already rejected.');
+        }
+        
+        $request->validate([
+            'rejection_reason' => 'required|string|max:500',
+        ]);
+        
+        $blog->update([
+            'approval_status' => 'rejected',
+            'rejection_reason' => $request->rejection_reason,
+            'approved_at' => null,
+            'approved_by' => null,
+        ]);
+        
+        return redirect()->route('admin.blogs.index')
+            ->with('success', 'Blog post rejected successfully.');
     }
 }

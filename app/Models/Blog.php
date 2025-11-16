@@ -21,12 +21,17 @@ class Blog extends Model
         'author_id',
         'featured_image',
         'status',
+        'approval_status',
+        'rejection_reason',
         'published_at',
+        'approved_at',
+        'approved_by',
         'views',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     /**
@@ -35,6 +40,14 @@ class Blog extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Get the admin who approved this blog post
+     */
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     /**
@@ -108,6 +121,7 @@ class Blog extends Model
     public static function published()
     {
         return self::where('status', 'published')
+            ->where('approval_status', 'approved')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
             ->orderBy('published_at', 'desc');

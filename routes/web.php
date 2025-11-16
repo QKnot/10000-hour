@@ -89,6 +89,10 @@ Route::prefix('/admin')->middleware(['auth', 'admin'])->group(function () {
         Route::get('/{id}/edit', 'edit')->name('admin.blogs.edit');
         Route::put('/{id}', 'update')->name('admin.blogs.update');
         Route::delete('/{id}', 'destroy')->name('admin.blogs.destroy');
+        
+        // Approval routes
+        Route::post('/{id}/approve', 'approve')->name('admin.blogs.approve');
+        Route::post('/{id}/reject', 'reject')->name('admin.blogs.reject');
     });
 });
 
