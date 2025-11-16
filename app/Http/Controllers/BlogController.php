@@ -14,7 +14,24 @@ class BlogController extends Controller
      */
     public function index()
     {
-        $blogs = Blog::published()->with('author')->paginate(6);
+        if (auth()->check()) {
+            // Authenticated users see published posts + their own pending posts
+            $blogs = Blog::with('author')
+                ->where(function($query) {
+                    $query->where('status', 'published')
+                        ->where('approval_status', 'approved')
+                        ->whereNotNull('published_at')
+                        ->where('published_at', '<=', now());
+                })
+                ->orWhere(function($query) {
+                    $query->where('author_id', auth()->user()->id);
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate(6);
+        } else {
+            // Non-authenticated users only see published and approved posts
+            $blogs = Blog::published()->with('author')->paginate(6);
+        }
         
         return view('blog.index', compact('blogs'));
     }

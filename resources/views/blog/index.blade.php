@@ -171,6 +171,12 @@
     <h1><i class="bi bi-journal-text"></i> 10000 Hour Blog</h1>
     <p>Insights, tips, and stories about mastering skills through deliberate practice</p>
     @auth
+    <div class="mt-2">
+        <small class="text-white-50">
+            <i class="bi bi-info-circle"></i> 
+            Your pending posts are visible only to you until approved by an admin.
+        </small>
+    </div>
     <div class="mt-3">
         <a href="{{ route('blog.create') }}" class="btn btn-light btn-lg">
             <i class="bi bi-plus-circle"></i> Create New Post
@@ -220,6 +226,12 @@
                         <i class="bi bi-calendar"></i>
                         {{ $blog->published_at ? $blog->published_at->format('M d, Y') : 'Not published' }}
                     </small>
+                    @if($blog->approval_status !== 'approved')
+                        <span class="badge bg-warning ms-2">
+                            <i class="bi bi-clock"></i> 
+                            {{ $blog->approval_status === 'pending' ? 'Pending Approval' : 'Rejected' }}
+                        </span>
+                    @endif
                 </div>
                 @auth
                 @if($blog->author_id === auth()->user()->id || auth()->user()->isAdmin())
