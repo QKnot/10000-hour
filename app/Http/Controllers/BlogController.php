@@ -18,13 +18,13 @@ class BlogController extends Controller
             // Authenticated users see published posts + their own pending posts
             $blogs = Blog::with('author')
                 ->where(function($query) {
-                    $query->where('status', 'published')
-                        ->where('approval_status', 'approved')
-                        ->whereNotNull('published_at')
-                        ->where('published_at', '<=', now());
-                })
-                ->orWhere(function($query) {
-                    $query->where('author_id', auth()->user()->id);
+                    $query->where(function($subQuery) {
+                        $subQuery->where('status', 'published')
+                            ->where('approval_status', 'approved')
+                            ->whereNotNull('published_at')
+                            ->where('published_at', '<=', now());
+                    })
+                    ->orWhere('author_id', auth()->user()->id);
                 })
                 ->orderBy('created_at', 'desc')
                 ->paginate(6);
@@ -43,15 +43,17 @@ class BlogController extends Controller
     {
         $blog = Blog::where('id', $id)
             ->where(function($query) {
-                $query->where('status', 'published')
-                    ->where('approval_status', 'approved')
-                    ->whereNotNull('published_at')
-                    ->where('published_at', '<=', now());
-            })
-            ->orWhere(function($query) {
-                if (auth()->check()) {
-                    $query->where('author_id', auth()->user()->id);
-                }
+                $query->where(function($subQuery) {
+                    $subQuery->where('status', 'published')
+                        ->where('approval_status', 'approved')
+                        ->whereNotNull('published_at')
+                        ->where('published_at', '<=', now());
+                })
+                ->orWhere(function($subQuery) {
+                    if (auth()->check()) {
+                        $subQuery->where('author_id', auth()->user()->id);
+                    }
+                });
             })
             ->with(['author', 'approver', 'likes', 'dislikes', 'comments.user', 'comments.replies.user'])
             ->firstOrFail();

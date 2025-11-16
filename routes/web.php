@@ -76,6 +76,8 @@ Route::prefix('/leaderboard')->middleware('auth')->controller(LeaderboardControl
 
 Route::prefix('/profile')->middleware('auth')->controller(ProfileController::class)->group(function () {
     Route::get('/', 'show')->name('profile.show');
+    Route::get('/delete', 'deleteConfirm')->name('profile.delete.confirm');
+    Route::delete('/delete', 'deleteAccount')->name('profile.delete');
 });
 
 Route::prefix('/admin')->middleware(['auth', 'admin'])->group(function () {

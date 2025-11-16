@@ -18,7 +18,12 @@ class HabitsController extends Controller
     public function index($id)
     {
         $record = habits::recordHabit($id);
-        $habit = habits::with('logs')->findOrFail($id);
+        $habit = habits::findHabitsByUser($id, auth()->user()->id);
+        
+        if (!$habit) {
+            return redirect()->route('dashboard')->with('error', 'Habit not found or unauthorized.');
+        }
+        
         return view('habits.index', compact('habit', 'record'));
     }
 
@@ -92,8 +97,8 @@ class HabitsController extends Controller
         ]);
 
         $habit = habits::findOrFail($request->habit_id);
-
-        if ($habit) {
+        
+        if ($habit && $habit->user_id === auth()->user()->id) {
             if ($habit->logs()->whereDate('date', '=', now()->toDateString())->count() >= $habit->daily_count) {
                 return redirect()->route('habits.index', $habit->id)->with('warn', "You cannot record more activities than the previously set schedule.");
             } else {
@@ -116,7 +121,7 @@ class HabitsController extends Controller
                 return redirect()->route('habits.index', $habit->id);
             }
         } else {
-            return redirect()->back()->with('eror', "Sorry Habit not found");
+            return redirect()->back()->with('error', 'Habit not found or unauthorized.');
         }
     }
 

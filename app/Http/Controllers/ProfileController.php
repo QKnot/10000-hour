@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\habits;
 use App\Models\Blog;
 use App\Models\habits_logs;
+use App\Models\BlogComment;
+use App\Models\BlogLike;
 use App\Services\BadgeService;
 
 class ProfileController extends Controller
@@ -88,5 +90,85 @@ class ProfileController extends Controller
             'recentActivity' => $recentActivity,
             'earnedBadges' => $earnedBadges,
         ]);
+    }
+
+    /**
+     * Show account deletion confirmation page
+     */
+    public function deleteConfirm()
+    {
+        $user = auth()->user();
+        
+        // Get user's statistics for warning message
+        $totalHours = $user->getTotalHours();
+        $totalHabits = $user->getTotalHabits();
+        $totalBlogPosts = $user->blogPosts()->count();
+        
+        return view('profile.delete-confirm', [
+            'user' => $user,
+            'totalHours' => $totalHours,
+            'totalHabits' => $totalHabits,
+            'totalBlogPosts' => $totalBlogPosts,
+        ]);
+    }
+
+    /**
+     * Permanently delete user account and all associated data
+     */
+    public function deleteAccount(Request $request)
+    {
+        $request->validate([
+            'confirmation' => 'required|string|in:DELETE',
+            'password' => 'required|string',
+        ]);
+
+        $user = auth()->user();
+
+        // Verify password
+        if (!\Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['password' => 'Incorrect password. Account deletion cancelled.']);
+        }
+
+        try {
+            // Delete user's habits and logs
+            $user->habits()->each(function ($habit) {
+                $habit->logs()->delete();
+                $habit->delete();
+            });
+
+            // Delete user's blog posts and related data
+            $user->blogPosts()->each(function ($blog) {
+                // Delete comments on this blog
+                BlogComment::where('blog_id', $blog->id)->delete();
+                // Delete likes on this blog
+                BlogLike::where('blog_id', $blog->id)->delete();
+                $blog->delete();
+            });
+
+            // Delete user's comments on other blogs
+            BlogComment::where('user_id', $user->id)->delete();
+
+            // Delete user's likes on other blogs
+            BlogLike::where('user_id', $user->id)->delete();
+
+            // Delete user's badges
+            $user->badges()->detach();
+
+            // Logout the user
+            auth()->logout();
+
+            // Delete the user account
+            $user->delete();
+
+            // Clear session and redirect
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->with('success', '👋 Your account has been permanently deleted. We\'re sorry to see you go!');
+
+        } catch (\Exception $e) {
+            \Log::error('Account deletion error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'An error occurred while deleting your account. Please try again or contact support.']);
+        }
     }
 }

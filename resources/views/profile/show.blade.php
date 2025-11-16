@@ -209,6 +209,37 @@
     @endif
 </div>
 
+<!-- Settings Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-gear me-2"></i>
+            Account Settings
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-muted mb-3">Manage Your Account</h6>
+
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted mb-3">Danger Zone</h6>
+                <div class="alert alert-warning mb-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Be careful with these actions - they cannot be undone!
+                </div>
+                <a href="{{ route('profile.delete.confirm') }}" 
+                   class="btn btn-danger"
+                   onclick="showAlert('⚠️ You\'re about to delete your account. This action cannot be undone!', 'warning', 3000); return true;">
+                    <i class="bi bi-trash me-2"></i>
+                    Delete My Account
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Statistics Cards -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
