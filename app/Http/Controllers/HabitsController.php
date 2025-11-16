@@ -118,7 +118,8 @@ class HabitsController extends Controller
                         ->with('success', 'Activity recorded! 🏆 New badge(s) earned: ' . $badgeNames);
                 }
                 
-                return redirect()->route('habits.index', $habit->id);
+                return redirect()->route('habits.index', $habit->id)
+                    ->with('success', '✅ Activity recorded successfully!');
             }
         } else {
             return redirect()->back()->with('error', 'Habit not found or unauthorized.');

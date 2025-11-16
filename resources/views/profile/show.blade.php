@@ -176,6 +176,75 @@
         margin: 0.25rem;
     }
 
+    .badge-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .badge-card.earned {
+        background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .badge-card.earned::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--badge-color, #667eea), var(--badge-color-light, #a78bfa));
+    }
+
+    .badge-icon {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        display: block;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .badge-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #2d3748;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-description {
+        font-size: 0.85rem;
+        color: #718096;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+    }
+
+    .badge-earned-date {
+        font-size: 0.75rem;
+        color: #a0aec0;
+        font-weight: 500;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        display: inline-block;
+    }
+
+    .badge-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .badge-card.earned:hover {
+        border-color: var(--badge-color, #667eea);
+    }
+
     .empty-state {
         text-align: center;
         padding: 2rem;
@@ -231,7 +300,7 @@
                 </div>
                 <a href="{{ route('profile.delete.confirm') }}" 
                    class="btn btn-danger"
-                   onclick="showAlert('⚠️ You\'re about to delete your account. This action cannot be undone!', 'warning', 3000); return true;">
+                   onclick="showAlert('⚠️ Account deletion cannot be undone!', 'warning', 3000); return true;">
                     <i class="bi bi-trash me-2"></i>
                     Delete My Account
                 </a>
@@ -353,7 +422,7 @@
     <div class="row g-3">
         @foreach($earnedBadges as $badge)
         <div class="col-md-3 col-sm-4 col-6">
-            <div class="badge-card earned" style="border-color: {{ $badge->color }};">
+            <div class="badge-card earned" style="--badge-color: {{ $badge->color }}; --badge-color-light: {{ $badge->color }}20; border-color: {{ $badge->color }};">
                 <div class="badge-icon" style="color: {{ $badge->color }};">
                     {{ $badge->icon ?? '🏆' }}
                 </div>

@@ -164,7 +164,7 @@ class ProfileController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')->with('success', '👋 Your account has been permanently deleted. We\'re sorry to see you go!');
+            return redirect()->route('login')->with('success', '✅ Account deleted successfully! 👋 We\'re sorry to see you go');
 
         } catch (\Exception $e) {
             \Log::error('Account deletion error: ' . $e->getMessage());

@@ -95,7 +95,7 @@
                                 Cancel, Keep My Account
                             </a>
                             <button type="submit" class="btn btn-danger" 
-                                    onclick="showAlert('🗑️ Deleting your account and all associated data...', 'warning', 2000); return true;">
+                                    onclick="showAlert('⚠️ Deleting account permanently...', 'warning', 2000); return true;">
                                 <i class="bi bi-trash me-2"></i>
                                 Delete My Account Permanently
                             </button>
