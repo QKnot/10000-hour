@@ -111,4 +111,73 @@ class AdminController extends Controller
             'recentLogs' => $recentLogs,
         ]);
     }
+
+    /**
+     * Display all users with their roles and statistics
+     */
+    public function users()
+    {
+        $users = User::with('habits')->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role,
+                'habit_count' => $user->getTotalHabits(),
+                'total_hours' => $user->getTotalHours(),
+                'blog_posts_count' => $user->blogPosts()->count(),
+                'created_at' => $user->created_at,
+            ];
+        })->sortBy('username')->values();
+
+        return view('admin.users', ['users' => $users]);
+    }
+
+    /**
+     * Make a user an admin
+     */
+    public function makeAdmin(User $user)
+    {
+        // Prevent removing admin from the last admin
+        if ($user->role === 'admin') {
+            return redirect()->back()
+                ->with('error', 'User is already an admin.');
+        }
+
+        // Update user role to admin
+        $user->update(['role' => 'admin']);
+
+        return redirect()->back()
+            ->with('success', "User {$user->username} has been made an admin.");
+    }
+
+    /**
+     * Remove admin role from a user
+     */
+    public function removeAdmin(User $user)
+    {
+        // Prevent removing admin from the last admin
+        $adminCount = User::where('role', 'admin')->count();
+        if ($adminCount <= 1) {
+            return redirect()->back()
+                ->with('error', 'Cannot remove admin role from the last admin. At least one admin must remain.');
+        }
+
+        // Prevent self-demotion
+        if ($user->id === auth()->id()) {
+            return redirect()->back()
+                ->with('error', 'You cannot remove your own admin role.');
+        }
+
+        if ($user->role !== 'admin') {
+            return redirect()->back()
+                ->with('error', 'User is not an admin.');
+        }
+
+        // Update user role to member
+        $user->update(['role' => 'member']);
+
+        return redirect()->back()
+            ->with('success', "Admin role has been removed from {$user->username}.");
+    }
 }

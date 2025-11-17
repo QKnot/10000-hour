@@ -278,36 +278,6 @@
     @endif
 </div>
 
-<!-- Settings Section -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h5 class="mb-0">
-            <i class="bi bi-gear me-2"></i>
-            Account Settings
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <h6 class="text-muted mb-3">Manage Your Account</h6>
-
-            </div>
-            <div class="col-md-6">
-                <h6 class="text-muted mb-3">Danger Zone</h6>
-                <div class="alert alert-warning mb-3">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Be careful with these actions - they cannot be undone!
-                </div>
-                <a href="{{ route('profile.delete.confirm') }}" 
-                   class="btn btn-danger"
-                   onclick="showAlert('⚠️ Account deletion cannot be undone!', 'warning', 3000); return true;">
-                    <i class="bi bi-trash me-2"></i>
-                    Delete My Account
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Statistics Cards -->
 <div class="row g-4 mb-4">
@@ -549,6 +519,107 @@
     </div>
 </div>
 @endif
+
+<!-- Account Settings Section -->
+<div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card-header bg-transparent border-0 py-4">
+        <h4 class="mb-0 text-white d-flex align-items-center">
+            <i class="bi bi-gear-fill me-3"></i>
+            Account Settings
+            <span class="ms-auto badge bg-white text-dark">Manage Your Account</span>
+        </h4>
+    </div>
+    <div class="card-body bg-white rounded-bottom">
+        <div class="row g-4">
+            <!-- Account Management -->
+            <div class="col-lg-6">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-box bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-person-gear text-primary fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 text-dark">Account Management</h5>
+                        <p class="text-muted mb-0 small">Update your profile information and preferences</p>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    @if(auth()->user()->isAdmin())
+                    <a href="{{ route('admin.users') }}" class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-start">
+                        <i class="bi bi-people me-2"></i>
+                        Manage User Roles
+                    </a>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-start">
+                        <i class="bi bi-shield-check me-2"></i>
+                        Admin Dashboard
+                    </a>
+                    @endif
+                    <!-- <button class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-start" disabled>
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Edit Profile Information
+                    </button>
+                    <button class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-start" disabled>
+                        <i class="bi bi-shield-lock me-2"></i>
+                        Change Password
+                    </button>
+                    <button class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-start" disabled>
+                        <i class="bi bi-bell me-2"></i>
+                        Notification Settings
+                    </button> -->
+                </div>
+
+            </div>
+            
+            <!-- Danger Zone -->
+            <div class="col-lg-6">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-box bg-danger bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-exclamation-triangle text-danger fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 text-dark">Danger Zone</h5>
+                        <p class="text-muted mb-0 small">Irreversible actions that affect your account</p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 mb-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                        <div>
+                            <strong>Warning:</strong> These actions cannot be undone. Please proceed with caution.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ route('profile.delete.confirm') }}" 
+                       class="btn btn-danger btn-lg d-flex align-items-center justify-content-center"
+                       onclick="showAlert('⚠️ Account deletion cannot be undone!', 'warning', 3000); return true;">
+                        <i class="bi bi-trash-fill me-2"></i>
+                        Delete My Account
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 pt-4 border-top">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="text-muted mb-0 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Need help? Contact support or visit our help center for assistance with your account settings.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                        <i class="bi bi-clock me-1"></i>
+                        Last updated: {{ now()->format('M d, Y') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 

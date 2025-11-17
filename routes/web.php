@@ -83,6 +83,11 @@ Route::prefix('/profile')->middleware('auth')->controller(ProfileController::cla
 Route::prefix('/admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
+    // User management routes
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::post('/users/{user}/make-admin', [AdminController::class, 'makeAdmin'])->name('admin.users.make-admin');
+    Route::post('/users/{user}/remove-admin', [AdminController::class, 'removeAdmin'])->name('admin.users.remove-admin');
+    
     // Blog management routes
     Route::prefix('/blogs')->controller(BlogController::class)->group(function () {
         Route::get('/', 'adminIndex')->name('admin.blogs.index');

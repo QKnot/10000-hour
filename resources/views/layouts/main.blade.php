@@ -427,10 +427,28 @@
                             </a>
                         </li>
                         @if(Auth::check() && Auth::user()->isAdmin())
-                        <li class="nav-item">
-                            <a class="nav-link {{ (request()->is('admin*')) ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ (request()->is('admin*')) ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-shield-check"></i> Admin
                             </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item {{ (request()->is('admin/dashboard')) ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                                        <i class="bi bi-speedometer2"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item {{ (request()->is('admin/users')) ? 'active' : '' }}" href="{{ route('admin.users') }}">
+                                        <i class="bi bi-people"></i> User Management
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item {{ (request()->is('admin/blogs*')) ? 'active' : '' }}" href="{{ route('admin.blogs.index') }}">
+                                        <i class="bi bi-journal-text"></i> Blog Management
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         @endif
                         <li class="nav-item dropdown">
