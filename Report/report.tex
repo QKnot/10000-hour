@@ -21,10 +21,10 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
-% LINE SPACING
+% CORRECTED LINE SPACING AND PARAGRAPH FORMATTING
 \onehalfspacing
-\setlength{\parindent}{1.27cm}
-\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}  % Remove first-line indentation
+\setlength{\parskip}{6pt}     % Keep 6pt space between paragraphs
 
 % HEADER/FOOTER
 \pagestyle{fancy}
@@ -36,11 +36,28 @@
 \captionsetup[figure]{labelfont=bf,justification=centering,labelsep=colon}
 \captionsetup[table]{labelfont=bf,justification=centering,labelsep=colon}
 
-% CHAPTER & SECTION STYLES
+% CHAPTER STYLES - Corrected to match guidelines
 \titleformat{\chapter}[display]
-  {\normalfont\bfseries\centering\fontsize{14}{16}\selectfont}{\MakeUppercase{\chaptername}\ \Roman{chapter}}{0pt}{\Large}
-\titleformat{\section}{\normalfont\bfseries\fontsize{12}{14}\selectfont}{\thesection}{0.5em}{}
-\titleformat{\subsection}{\normalfont\bfseries\fontsize{12}{14}\selectfont}{\thesubsection}{0.5em}{}
+  {\normalfont\bfseries\centering\fontsize{14}{16}\selectfont}
+  {\MakeUppercase{\chaptername}\ \Roman{chapter}}
+  {0pt}
+  {\fontsize{14}{17}\selectfont}
+  
+\titlespacing*{\chapter}{0pt}{0pt}{2\baselineskip}
+
+% SECTION STYLES
+\titleformat{\section}
+  {\normalfont\bfseries\fontsize{12}{14}\selectfont}
+  {\thesection}
+  {0.5em}
+  {}
+  
+\titleformat{\subsection}
+  {\normalfont\bfseries\fontsize{12}{14}\selectfont}
+  {\thesubsection}
+  {0.5em}
+  {}
+
 \renewcommand{\chaptername}{CHAPTER}
 
 % CODE LISTING STYLE
@@ -52,11 +69,11 @@
   showstringspaces=false
 }
 
-% CUSTOM COMMANDS
+% CUSTOM COMMANDS - Updated
 \newcommand{\TitleFont}{\fontsize{14}{17}\selectfont\bfseries\centering}
 \newcommand{\NameFont}{\fontsize{12}{14}\selectfont\bfseries\centering}
 \newcommand{\CenteredNormal}{\fontsize{12}{14}\selectfont\centering}
-\newcommand{\JustifiedNormal}{\fontsize{12}{14}\selectfont\justifying}
+\newcommand{\JustifiedNormal}{\fontsize{12}{14}\selectfont\justifying\setlength{\parindent}{0pt}}
 
 \begin{document}
 
@@ -82,14 +99,16 @@
     CSE 4100\\
     Field Work / Industrial Training\par
   }
+ \vspace{2.5em}
+  {\centering \includegraphics[width=4cm]{image/logo.png}\par}
   \vspace{1.5em}
   {\CenteredNormal
     Department of Computer Science and Engineering\\
     Northern University of Business and Technology Khulna\\
-    Khulna 9100, Bangladesh\par
+    Khulna  9208, Bangladesh\par
   }
   \vspace{1em}
-  {\CenteredNormal December, 2025\par}
+  {\CenteredNormal January, 2026\par}
 \end{titlepage}
 
 % ===== DECLARATION =====
@@ -101,7 +120,7 @@
 \end{center}
 \vspace{2em}
 \JustifiedNormal
-This is to certify that the Field Work / Industrial Training work entitled "Development of 10000 Hour: A Web-Based Habit Tracking System Using Laravel Framework" has been carried out by Rahul Kumar Ghosh in the Department of Computer Science and Engineering, Northern University of Business and Technology Khulna, Khulna 9100, Bangladesh. The above Field Work / Industrial Training work or any part of this work has not been submitted anywhere for the award of any degree or diploma.
+This is to certify that the Field Work / Industrial Training work entitled "Development of 10000 Hour: A Web-Based Habit Tracking System Using Laravel Framework" has been carried out by Rahul Kumar Ghosh in the Department of Computer Science and Engineering, Northern University of Business and Technology Khulna, Khulna 9208, Bangladesh. The above Field Work / Industrial Training work or any part of this work has not been submitted anywhere for the award of any degree or diploma.
 
 \vspace{3em}
 \noindent
@@ -140,7 +159,7 @@ Finally, I acknowledge the open-source community and Laravel framework developer
 \vspace{2em}
 \begin{flushright}
 Rahul Kumar Ghosh\\
-December, 2025
+January, 2026
 \end{flushright}
 
 \clearpage
@@ -1307,8 +1326,6 @@ Current limitations to be addressed in future versions:
 \textbf{Offline Functionality:} Requires internet connection; offline logging with sync would be beneficial.
 
 \textbf{Data Export:} Limited export options for user data.
-
-\textbf{Reminder System:} No automated reminders for practice sessions.
 
 \textbf{Team Features:} No support for group habits or team challenges.
 
