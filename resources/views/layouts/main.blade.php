@@ -500,7 +500,7 @@
                     </a>
                 </div>
                 <div class="footer-institution">
-                    Department of Computer Science<br>
+                    Department of Computer Science & Engineering<br>
                     Northern University of Business and Technology Khulna
                 </div>
             </div>
